@@ -40,7 +40,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-top: 6px;
+      margin-top: 12px;
       font-size: 0.95rem;
       color: #374151;
       cursor: pointer;
@@ -138,7 +138,58 @@
       outline: none;
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.35);
     }
-    
+
+    /* ===== スマホ向け全体調整 ===== */
+    @media (max-width: 600px) {
+
+      body {
+        padding: 12px;
+      }
+
+      h2 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+      }
+
+      input,
+      button,
+      a.button-link {
+        font-size: 1.05rem;
+        padding: 14px;   /* タップしやすく */
+      }
+
+      button,
+      a.button-link {
+        min-height: 48px; /* Apple/Google推奨 */
+      }
+
+      #result {
+        font-size: 0.95rem;
+      }
+
+      form {
+        max-width: 520px;
+        margin: 0 auto;
+      }
+
+      .checkbox {
+        padding: 8px 4px;
+      }
+
+      .checkbox input {
+        width: 24px;
+        height: 24px;
+      }
+
+      .checkbox span {
+        font-size: 1rem;
+      }
+
+      a.button-link {
+        position: sticky;
+        bottom: 10px;
+      }
+    }    
   </style>
 </head>
 <body>
