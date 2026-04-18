@@ -215,11 +215,7 @@
         })
       });
     const data = await res.json();
-    ////
-    
-  }
-  google.script.run
-    .withSuccessHandler(data => {
+    if (data.status === "success") {
       if (!data || data.length === 0) {
         result.textContent = "データがありません";
         return;
@@ -257,15 +253,15 @@
         tbody.appendChild(tr);
       });
       result.textContent = "";
-    })
-    .withFailureHandler(err => {
-      alert("GASエラー: " + err.message);
-    })
-    .getIdList();
-
+    } else {
+      result.textContent = data.table;
+    }
+    
+  }
+   
   
 
-  deleteBtn.addEventListener("click", () => {
+  deleteBtn.addEventListener("click", async () => {
     if (!selectedRow) return;
 
     const isWorking =
@@ -288,16 +284,22 @@
     deleteBtn.disabled = true;
     result.textContent = "削除中…";
 
-    google.script.run
-      .withSuccessHandler(msg => {
-        result.textContent = msg;
-        idInput.textContent = "";
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "deleteDataById",
+        id: selectedRow[0]
       })
-      .withFailureHandler(err => {
-        result.textContent = "エラー: " + err.message;
-        deleteBtn.disabled = false;
-      })
-      .deleteDataById(selectedRow[0]);
+    });
+    const data = await res.json();
+
+    if (data.status === "success") {
+      result.textContent = data.message;
+      idInput.textContent = "";
+    } else {
+      result.textContent = data;
+      deleteBtn.disabled = false;
+    }
   });
 </script>
 
