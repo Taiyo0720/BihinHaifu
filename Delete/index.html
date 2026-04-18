@@ -366,7 +366,8 @@
     if (data.status === "success") {
       result.textContent = data.message;
       idInput.textContent = "";
-      location.reload();
+      tbody.innerHTML = "";
+      createTable();
     } else {
       result.textContent = data;
       deleteBtn.disabled = false;
