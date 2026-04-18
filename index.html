@@ -167,88 +167,104 @@
 
   <a href="https://sites.google.com/seiko.ac.jp/bihin-haifu-henshu/%E7%B7%A8%E9%9B%86%E3%83%9A%E3%83%BC%E3%82%B8" class="button-link">戻る</a>
 
-  <script>
-    const form = document.getElementById("myForm");
-    const result = document.getElementById("result");
-    const submitBtn = document.getElementById("submitBtn");
-    const workingCheck = document.getElementById("working");
-    const emailCheck = document.getElementById("send");
-
-    const API_URL = "https://script.google.com/macros/s/AKfycbz34i_gw5K6WmRpUW1DP-9ywf6ydsx4L-SqAwguQNvpTxvYrH4VMiaYpTA_A1aegmwDLg/exec";
-
-    workingCheck.addEventListener("change", () => {
-      emailCheck.disabled = !workingCheck.checked;
-      if (!workingCheck.checked) emailCheck.checked = false;
-    });
-
-    form.addEventListener("submit", e => {
-      e.preventDefault();
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = "送信中…";
-      submitBtn.classList.add("loading");
-      result.textContent = "";
-
-      const sendData = (sendEmail=false) => {
-        const data = fetch(API_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "submit",
-            data: {
-              place: form.place.value,
-              item: form.item.value,
-              toWhere: form.toWhere.value,
-              amount: form.amount.value,
-              working: form.working.checked
-            })
-        }).then(res => res.json())
-        if (data.status === "sent") {
-          result.textContent = "担当者にメールを送信し、データを追加しました。";
-        } else if (data.status === "success") {
-          result.textContent = "追加しました。";
-        } else {
-          result.textContent = data;
-        }
-    
-        form.reset();
-        submitBtn.disabled = false;
-        submitBtn.textContent = "追加";
-        submitBtn.classList.remove("loading");
-      };
-
-      // ===== メール確認が必要な場合 =====
-      if (form.sendEmail.checked) {
-        const data = fetch(API_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "getManagerEmail",
-            place: form.toWhere.value
-          })
-        }).then(res => res.text());
-        if (data.status === "success") {
-          let ok;
-          if (data.email) {
-            ok = confirm(`データを追加し、目的地担当者 ${email} に待機要請メールを送信します。よろしいですか？`);
-          } else {
-            ok = confirm("目的地担当者が見つからないため、メールを送信せずにデータを追加します。よろしいですか？");
-          }
-
-          if (ok) {
-            sendData(sendEmail = true); //ただし担当者がいなければ送信されない。
-          } else {
-            submitBtn.disabled = false;
-            submitBtn.textContent = "追加";
-            submitBtn.classList.remove("loading");
-          }
-        } else {
-          result.textContent = data;
-        }
-
+<script>
+  const form = document.getElementById("myForm");
+  const result = document.getElementById("result");
+  const submitBtn = document.getElementById("submitBtn");
+  const workingCheck = document.getElementById("working");
+  const emailCheck = document.getElementById("send");
+  
+  const API_URL = "https://script.google.com/macros/s/AKfycbz34i_gw5K6WmRpUW1DP-9ywf6ydsx4L-SqAwguQNvpTxvYrH4VMiaYpTA_A1aegmwDLg/exec";
+  
+  workingCheck.addEventListener("change", () => {
+    emailCheck.disabled = !workingCheck.checked;
+    if (!workingCheck.checked) emailCheck.checked = false;
+  });
+  
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+  
+    submitBtn.disabled = true;
+    submitBtn.textContent = "送信中…";
+    submitBtn.classList.add("loading");
+    result.textContent = "";
+  
+    // ===== データ送信関数 =====
+    const sendData = async (sendEmail=false) => {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          action: "submit",
+          data: {
+            place: form.place.value,
+            item: form.item.value,
+            toWhere: form.toWhere.value,
+            amount: form.amount.value,
+            working: form.working.checked
+          },
+          sendEmail: sendEmail
+        })
+      });
+  
+      const data = await res.json();
+  
+      if (data.status === "sent") {
+        result.textContent = "担当者にメールを送信し、データを追加しました。";
+      } else if (data.status === "success") {
+        result.textContent = "追加しました。";
       } else {
-        // メール送信なし
-        sendData();
+        result.textContent = data.message || "エラー";
       }
-    });
-  </script>
+  
+      form.reset();
+      submitBtn.disabled = false;
+      submitBtn.textContent = "追加";
+      submitBtn.classList.remove("loading");
+    };
+  
+    // ===== メール確認 =====
+    if (form.sendEmail.checked) {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          action: "getManagerEmail",
+          place: form.toWhere.value
+        })
+      });
+  
+      const data = await res.json();
+  
+      if (data.status === "success") {
+        let ok;
+  
+        if (data.email) {
+          ok = confirm(`データを追加し、目的地担当者 ${data.email} にメールを送信します。よろしいですか？`);
+        } else {
+          ok = confirm("担当者が見つからないため、メールなしで追加します。よろしいですか？");
+        }
+  
+        if (ok) {
+          await sendData(true);
+        } else {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "追加";
+          submitBtn.classList.remove("loading");
+        }
+  
+      } else {
+        result.textContent = "メール取得エラー";
+      }
+  
+    } else {
+      await sendData(false);
+    }
+  });
+</script>
 </body>
 </html>
