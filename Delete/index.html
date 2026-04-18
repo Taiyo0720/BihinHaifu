@@ -366,6 +366,7 @@
     if (data.status === "success") {
       result.textContent = data.message;
       idInput.textContent = "";
+      location.reload();
     } else {
       result.textContent = data;
       deleteBtn.disabled = false;
