@@ -5,47 +5,56 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
+    /* ================================
+      共通設定
+    ================================ */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+    
     body {
-      font-family: system-ui, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       background: #f9fafb;
       padding: 20px;
+      font-size: 1rem;
     }
-
+    
     h2 {
       text-align: center;
       margin-bottom: 12px;
     }
-
+    
     /* ================================
-      テーブルスクロール用ラッパー
+      テーブルスクロールラッパー（PCベース）
     ================================ */
     .table-wrapper {
       max-height: 65vh;
       width: 100%;
       overflow-y: auto;
       overflow-x: hidden;
-
+    
       background: white;
       border-radius: 32px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-
+    
       -webkit-overflow-scrolling: touch;
     }
-
-    /* tableは幅100%固定 */
+    
     .table-wrapper table {
       width: 100%;
       border-collapse: collapse;
     }
-
+    
     /* ================================
-      テーブル本体（displayは触らない）
+      テーブル
     ================================ */
     table {
       width: 100%;
       border-collapse: collapse;
     }
-
+    
     /* ヘッダー固定 */
     thead th {
       position: sticky;
@@ -53,33 +62,32 @@
       z-index: 5;
       background: #f3f4f6;
     }
-
+    
     th, td {
       padding: 14px;
       border-bottom: 1px solid #e5e7eb;
       font-size: 1rem;
       text-align: left;
     }
-
-    /* 行ホバー */
+    
+    /* 行状態 */
     tbody tr:hover {
       background: #f9fafb;
       cursor: pointer;
     }
-
+    
     tr.selected {
       background: #fee2e2;
     }
-
-    /* 業務中行 */
+    
     tr.working {
       background: #fff7ed;
     }
-
+    
     tr.working:hover {
       background: #ffedd5;
     }
-
+    
     /* ================================
       入力・ボタン
     ================================ */
@@ -91,23 +99,29 @@
       border-radius: 14px;
       font-size: 1.1rem;
     }
-
+    
+    input {
+      background: white;
+      border: 1px solid #d1d5db;
+    }
+    
     button {
       background: #ef4444;
       color: white;
       border: none;
       cursor: pointer;
     }
-
+    
     button:disabled {
       background: #fca5a5;
     }
-
+    
+    /* 結果 */
     #result {
       text-align: center;
       margin-top: 12px;
     }
-
+    
     /* ================================
       ボタン風リンク
     ================================ */
@@ -117,54 +131,99 @@
       text-align: center;
       padding: 14px;
       margin-top: 12px;
-
+    
       background: #ef4444;
       color: white;
       text-decoration: none;
-
+    
       border-radius: 14px;
       font-size: 1.1rem;
       font-weight: 600;
-
+    
       box-shadow: 0 4px 10px rgba(0,0,0,0.08);
       transition: background 0.2s ease, transform 0.1s ease;
     }
-
+    
     a.button-link:hover {
       background: #dc2626;
     }
-
+    
     a.button-link:active {
       transform: translateY(1px);
     }
-
+    
     /* ================================
-      全体の幅を統一する外枠
+      レイアウト
     ================================ */
     .page-container {
       max-width: 100%;
       margin: 0 auto;
     }
-
-    /* テーブル・入力・ボタンの横幅を完全一致させる */
+    
     .page-container > * {
-      box-sizing: border-box;
       width: 100%;
     }
-
+    
     /* ================================
-      入力・ボタン・戻るリンク
+      📱 スマホ用（上書き）
     ================================ */
-    input,
-    button,
-    a.button-link {
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    /* 入力欄だけ微調整（テーブルと見た目揃え） */
-    input {
-      background: white;
+    @media (max-width: 768px) {
+    
+      body {
+        padding: 30px;
+        font-size: 2.5rem;
+      }
+    
+      h2 {
+        font-size: 3rem;
+        margin-bottom: 28px;
+      }
+    
+      /* テーブル */
+      th, td {
+        padding: 28px;
+        border-bottom: 2px solid #e5e7eb;
+        font-size: 2rem;
+      }
+    
+      /* ラッパー高さ少し調整 */
+      .table-wrapper {
+        max-height: 60vh;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+      }
+    
+      /* 行選択の差分 */
+      tr.working.selected {
+        background: #fed7aa;
+      }
+    
+      /* 入力 */
+      input,
+      button {
+        padding: 30px;
+        margin-top: 20px;
+        border-radius: 26px;
+        font-size: 2.5rem;
+      }
+    
+      /* 結果 */
+      #result {
+        margin-top: 28px;
+        font-size: 2.3rem;
+      }
+    
+      /* リンク */
+      a.button-link {
+        margin-top: 40px;
+        padding: 32px;
+        border-radius: 28px;
+        font-size: 2.5rem;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+      }
+    
+      a.button-link:active {
+        transform: translateY(2px);
+      }
     }
 
   </style>
