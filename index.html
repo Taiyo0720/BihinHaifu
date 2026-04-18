@@ -168,6 +168,7 @@
   <a href="https://sites.google.com/seiko.ac.jp/bihin-haifu-henshu/%E7%B7%A8%E9%9B%86%E3%83%9A%E3%83%BC%E3%82%B8" class="button-link">戻る</a>
 
 <script>
+  /*
   const form = document.getElementById("myForm");
   const result = document.getElementById("result");
   const submitBtn = document.getElementById("submitBtn");
@@ -266,7 +267,27 @@
     } else {
       await sendData(false);
     }
-  });
+  });*/
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({...})
+    });
+
+    console.log("status:", res.status);
+  
+    const text = await res.text();
+    console.log("raw response:", text);
+  
+    const data = JSON.parse(text);
+    console.log("parsed:", data);
+
+  } catch (err) {
+    console.error("fetch error:", err);
+  }
 </script>
 </body>
 </html>
