@@ -208,13 +208,16 @@
 
   // 一覧取得
   const createTable = async () => {
+    console.log("実行されました");
     const res = await fetch(API_URL, {
         method: "GET",
         body: JSON.stringify({
           action: "getIdList"
         })
       });
+    console.log("fetch終了しました。");
     const data = await res.json();
+    console.log(data);
     if (data.status === "success") {
       if (!data || data.length === 0) {
         result.textContent = "データがありません";
