@@ -191,6 +191,7 @@
   
     // ===== データ送信関数 =====
     const sendData = async (sendEmail=false) => {
+      result.textContent = "fetch開始";
       const res = await fetch(API_URL, {
         method: "POST",
         headers: {
@@ -208,7 +209,7 @@
           sendEmail: sendEmail
         })
       });
-  
+      result.textContent = "fetch完了";
       const data = await res.json();
   
       if (data.status === "sent") {
@@ -225,7 +226,6 @@
       submitBtn.classList.remove("loading");
     };
 
-    result.textContent = "処理開始";
   
     // ===== メール確認 =====
     if (form.sendEmail.checked) {
