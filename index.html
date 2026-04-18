@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f9fafb;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 14px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+
+    input, button, label {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 1rem;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 10px;
+    }
+    /* ===== チェックボックス（業務中） ===== */
+    .checkbox {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+      font-size: 0.95rem;
+      color: #374151;
+      cursor: pointer;
+    }
+
+    .checkbox input {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #cbd5e1;
+      border-radius: 6px;
+      background: #fff;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    /* チェック時 */
+    .checkbox input:checked {
+      background: #3b82f6;
+      border-color: #3b82f6;
+    }
+
+    /* チェックマーク */
+    .checkbox input:checked::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 6px;
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    /* フォーカス時（アクセシビリティ） */
+    .checkbox input:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+
+    /* タップ時の違和感防止（スマホ） */
+    .checkbox input:active {
+      transform: scale(0.95);
+    }
+
+    button:disabled {
+      background: #93c5fd;
+      cursor: not-allowed;
+    }
+
+    button.loading {
+      background: #9ca3af;
+    }
+    
+    /* ===== ボタン風リンク ===== */
+    a.button-link {
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      padding: 10px;
+      margin-top: 10px;
+
+      background: #2563eb;        /* add系と同じ青 */
+      color: white;
+      text-decoration: none;
+
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 500;
+
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      transition: 
+        background 0.2s ease,
+        transform 0.1s ease,
+        box-shadow 0.1s ease;
+    }
+
+    /* hover */
+    a.button-link:hover {
+      background: #1d4ed8;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+    }
+
+    /* active（押した感） */
+    a.button-link:active {
+      transform: translateY(1px);
+      box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+    }
+
+    /* focus（キーボード操作対応） */
+    a.button-link:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.35);
+    }
+    
+  </style>
+</head>
+<body>
+
+  <h2>追加フォーム</h2>
+
+  <form id="myForm">
+    <input name="place" placeholder="場所" required>
+    <input name="item" placeholder="物" required>
+    <input name="toWhere" placeholder="目的地" required>
+    <input name="amount" type="number" placeholder="数" min="1" required>
+
+    <label class="checkbox">
+      <input type="checkbox" name="working" id="working">
+      <span>業務中</span>
+    </label>
+    <label class="checkbox">
+      <input type="checkbox" name="sendEmail" id="send" disabled>
+      <span>【業務中がOnのとき】目的地担当者へ待機要請メールを送信。</span>
+    </label>
+
+    <button type="submit" id="submitBtn">追加</button>
+  </form>
+
+  <p id="result"></p>
+
+  <a href="https://sites.google.com/seiko.ac.jp/bihin-haifu-henshu/%E7%B7%A8%E9%9B%86%E3%83%9A%E3%83%BC%E3%82%B8" class="button-link">戻る</a>
+
+  <script>
+    const form = document.getElementById("myForm");
+    const result = document.getElementById("result");
+    const submitBtn = document.getElementById("submitBtn");
+    const workingCheck = document.getElementById("working");
+    const emailCheck = document.getElementById("send");
+
+    const API_URL = "https://script.google.com/macros/s/AKfycbz34i_gw5K6WmRpUW1DP-9ywf6ydsx4L-SqAwguQNvpTxvYrH4VMiaYpTA_A1aegmwDLg/exec";
+
+    workingCheck.addEventListener("change", () => {
+      emailCheck.disabled = !workingCheck.checked;
+      if (!workingCheck.checked) emailCheck.checked = false;
+    });
+
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "送信中…";
+      submitBtn.classList.add("loading");
+      result.textContent = "";
+
+      const sendData = (sendEmail=false) => {
+        const data = fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "submit",
+            data: {
+              place: form.place.value,
+              item: form.item.value,
+              toWhere: form.toWhere.value,
+              amount: form.amount.value,
+              working: form.working.checked
+            })
+        }).then(res => res.json())
+        if (data.status === "sent") {
+          result.textContent = "担当者にメールを送信し、データを追加しました。";
+        } else if (data.status === "success") {
+          result.textContent = "追加しました。";
+        } else {
+          result.textContent = data;
+        }
+    
+        form.reset();
+        submitBtn.disabled = false;
+        submitBtn.textContent = "追加";
+        submitBtn.classList.remove("loading");
+      };
+
+      // ===== メール確認が必要な場合 =====
+      if (form.sendEmail.checked) {
+        const data = fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "getManagerEmail",
+            place: form.toWhere.value
+          })
+        }).then(res => res.text());
+        if (data.status === "success") {
+          let ok;
+          if (data.email) {
+            ok = confirm(`データを追加し、目的地担当者 ${email} に待機要請メールを送信します。よろしいですか？`);
+          } else {
+            ok = confirm("目的地担当者が見つからないため、メールを送信せずにデータを追加します。よろしいですか？");
+          }
+
+          if (ok) {
+            sendData(sendEmail = true); //ただし担当者がいなければ送信されない。
+          } else {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "追加";
+            submitBtn.classList.remove("loading");
+          }
+        } else {
+          result.textContent = data;
+        }
+
+      } else {
+        // メール送信なし
+        sendData();
+      }
+    });
+  </script>
+</body>
+</html>
