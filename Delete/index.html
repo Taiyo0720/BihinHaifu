@@ -1,1 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f9fafb;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    /* ================================
+      テーブルスクロール用ラッパー
+    ================================ */
+    .table-wrapper {
+      max-height: 65vh;
+      width: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+
+      background: white;
+      border-radius: 32px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* tableは幅100%固定 */
+    .table-wrapper table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    /* ================================
+      テーブル本体（displayは触らない）
+    ================================ */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    /* ヘッダー固定 */
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: #f3f4f6;
+    }
+
+    th, td {
+      padding: 14px;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 1rem;
+      text-align: left;
+    }
+
+    /* 行ホバー */
+    tbody tr:hover {
+      background: #f9fafb;
+      cursor: pointer;
+    }
+
+    tr.selected {
+      background: #fee2e2;
+    }
+
+    /* 業務中行 */
+    tr.working {
+      background: #fff7ed;
+    }
+
+    tr.working:hover {
+      background: #ffedd5;
+    }
+
+    /* ================================
+      入力・ボタン
+    ================================ */
+    input,
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      border-radius: 14px;
+      font-size: 1.1rem;
+    }
+
+    button {
+      background: #ef4444;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #fca5a5;
+    }
+
+    #result {
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    /* ================================
+      ボタン風リンク
+    ================================ */
+    a.button-link {
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      padding: 14px;
+      margin-top: 12px;
+
+      background: #ef4444;
+      color: white;
+      text-decoration: none;
+
+      border-radius: 14px;
+      font-size: 1.1rem;
+      font-weight: 600;
+
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    a.button-link:hover {
+      background: #dc2626;
+    }
+
+    a.button-link:active {
+      transform: translateY(1px);
+    }
+
+    /* ================================
+      全体の幅を統一する外枠
+    ================================ */
+    .page-container {
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    /* テーブル・入力・ボタンの横幅を完全一致させる */
+    .page-container > * {
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    /* ================================
+      入力・ボタン・戻るリンク
+    ================================ */
+    input,
+    button,
+    a.button-link {
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* 入力欄だけ微調整（テーブルと見た目揃え） */
+    input {
+      background: white;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="page-container">
+  <h2>削除（行をクリックして削除）</h2>
+  <div class="table-wrapper">
+    <table id="idTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>場所</th>
+          <th>物</th>
+          <th>目的地</th>
+          <th>数</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  </div>
+
+  <input id="idInput" placeholder="削除するID" readonly>
+  <button id="deleteBtn" disabled>削除</button>
+
+  <p id="result">表を読み込み中……</p>
+
+  <a href="https://sites.google.com/seiko.ac.jp/bihin-haifu-henshu/%E7%B7%A8%E9%9B%86%E3%83%9A%E3%83%BC%E3%82%B8" class="button-link">戻る</a>
+
+<script>
+  const tbody = document.querySelector("#idTable tbody");
+  const idInput = document.getElementById("idInput");
+  const deleteBtn = document.getElementById("deleteBtn");
+  const result = document.getElementById("result");
+
+  let selectedRow = null;
+
+  // 一覧取得
+  google.script.run
+    .withSuccessHandler(data => {
+      if (!data || data.length === 0) {
+        result.textContent = "データがありません";
+        return;
+      }
+
+      data.forEach(row => {
+        const tr = document.createElement("tr");
+
+        // 業務中（G列）
+        const isWorking =
+          row[6] === true ||
+          row[6] === "TRUE" ||
+          row[6] === "true";
+
+        if (isWorking) tr.classList.add("working");
+
+        // 表示列：A, C, D, E, F
+        const displayIndexes = [0, 2, 3, 4, 5];
+        displayIndexes.forEach(i => {
+          const td = document.createElement("td");
+          td.textContent = row[i] ?? "";
+          tr.appendChild(td);
+        });
+
+        tr.addEventListener("click", () => {
+          document.querySelectorAll("tr.selected")
+            .forEach(r => r.classList.remove("selected"));
+
+          tr.classList.add("selected");
+          selectedRow = row;
+          idInput.value = row[0];
+          deleteBtn.disabled = false;
+        });
+
+        tbody.appendChild(tr);
+      });
+      result.textContent = "";
+    })
+    .withFailureHandler(err => {
+      alert("GASエラー: " + err.message);
+    })
+    .getIdList();
+
+  
+
+  deleteBtn.addEventListener("click", () => {
+    if (!selectedRow) return;
+
+    const isWorking =
+      selectedRow[6] === true ||
+      selectedRow[6] === "TRUE" ||
+      selectedRow[6] === "true";
+
+    const ok = confirm(
+      `以下を削除します。\n\n` +
+      `ID: ${selectedRow[0]}\n` +
+      `場所: ${selectedRow[2]}\n` +
+      `物: ${selectedRow[3]}\n` +
+      `目的地: ${selectedRow[4]}\n` +
+      `数: ${selectedRow[5]}\n` +
+      `業務中: ${isWorking ? "はい" : "いいえ"}\n\n` +
+      `本当に削除しますか？`
+    );
+    if (!ok) return;
+
+    deleteBtn.disabled = true;
+    result.textContent = "削除中…";
+
+    google.script.run
+      .withSuccessHandler(msg => {
+        result.textContent = msg;
+        idInput.textContent = "";
+      })
+      .withFailureHandler(err => {
+        result.textContent = "エラー: " + err.message;
+        deleteBtn.disabled = false;
+      })
+      .deleteDataById(selectedRow[0]);
+  });
+</script>
+
+</body>
+</html>
