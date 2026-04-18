@@ -5,47 +5,56 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
+    /* ===== 共通 ===== */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+    
+    /* ===== PC（デフォルト） ===== */
     body {
       font-family: system-ui, sans-serif;
       background: #f9fafb;
       padding: 20px;
     }
-
+    
     h2 {
       text-align: center;
     }
-
+    
     form {
       background: white;
       padding: 20px;
       border-radius: 14px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.08);
     }
-
+    
     input, button, label {
       width: 100%;
       padding: 10px;
       margin-top: 10px;
       font-size: 1rem;
     }
-
+    
     button {
       background: #2563eb;
       color: white;
       border: none;
       border-radius: 10px;
     }
-    /* ===== チェックボックス（業務中） ===== */
+    
+    /* ===== チェックボックス ===== */
     .checkbox {
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-top: 12px;
+      margin-top: 6px;
       font-size: 0.95rem;
       color: #374151;
       cursor: pointer;
     }
-
+    
     .checkbox input {
       appearance: none;
       -webkit-appearance: none;
@@ -58,14 +67,12 @@
       cursor: pointer;
       transition: all 0.2s ease;
     }
-
-    /* チェック時 */
+    
     .checkbox input:checked {
       background: #3b82f6;
       border-color: #3b82f6;
     }
-
-    /* チェックマーク */
+    
     .checkbox input:checked::after {
       content: "";
       position: absolute;
@@ -77,23 +84,21 @@
       border-width: 0 2px 2px 0;
       transform: rotate(45deg);
     }
-
-    /* フォーカス時（アクセシビリティ） */
+    
     .checkbox input:focus {
       outline: none;
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
     }
-
-    /* タップ時の違和感防止（スマホ） */
+    
     .checkbox input:active {
       transform: scale(0.95);
     }
-
+    
     button:disabled {
       background: #93c5fd;
       cursor: not-allowed;
     }
-
+    
     button.loading {
       background: #9ca3af;
     }
@@ -105,89 +110,105 @@
       text-align: center;
       padding: 10px;
       margin-top: 10px;
-
-      background: #2563eb;        /* add系と同じ青 */
+      background: #2563eb;
       color: white;
       text-decoration: none;
-
       border-radius: 10px;
       font-size: 1rem;
       font-weight: 500;
-
       box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-      transition: 
-        background 0.2s ease,
-        transform 0.1s ease,
-        box-shadow 0.1s ease;
+      transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.1s ease;
     }
-
-    /* hover */
+    
     a.button-link:hover {
       background: #1d4ed8;
       box-shadow: 0 6px 14px rgba(0,0,0,0.12);
     }
-
-    /* active（押した感） */
+    
     a.button-link:active {
       transform: translateY(1px);
       box-shadow: 0 3px 6px rgba(0,0,0,0.08);
     }
-
-    /* focus（キーボード操作対応） */
+    
     a.button-link:focus {
       outline: none;
       box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.35);
     }
-
-    /* ===== スマホ向け全体調整 ===== */
+    
+    /* ===== スマホ用 ===== */
     @media (max-width: 600px) {
-
+    
       body {
-        padding: 12px;
+        padding: 30px;
+        font-size: 2.5rem;
       }
-
+    
       h2 {
-        font-size: 1.2rem;
-        margin-bottom: 10px;
+        font-size: 3rem;
+        margin-bottom: 30px;
       }
-
-      input,
-      button,
-      a.button-link {
-        font-size: 1.05rem;
-        padding: 14px;   /* タップしやすく */
-      }
-
-      button,
-      a.button-link {
-        min-height: 48px; /* Apple/Google推奨 */
-      }
-
-      #result {
-        font-size: 0.95rem;
-      }
-
+    
       form {
-        max-width: 520px;
+        padding: 40px;
+        border-radius: 32px;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+        max-width: 900px;
         margin: 0 auto;
       }
-
+    
+      input {
+        padding: 32px;
+        margin-top: 24px;
+        font-size: 2.5rem;
+        border-radius: 24px;
+        border: 2px solid #d1d5db;
+      }
+    
       .checkbox {
-        padding: 8px 4px;
+        font-size: 2.5rem;
       }
-
+    
       .checkbox input {
-        width: 24px;
+        width: 48px;
+        height: 48px;
+        border: 3px solid #cbd5e1;
+        border-radius: 12px;
+      }
+    
+      .checkbox input:checked::after {
+        top: 8px;
+        left: 16px;
+        width: 12px;
         height: 24px;
+        border-width: 0 4px 4px 0;
       }
-
-      .checkbox span {
-        font-size: 1rem;
+    
+      button {
+        margin-top: 40px;
+        padding: 34px;
+        border-radius: 28px;
+        font-size: 2.7rem;
+        font-weight: 600;
       }
-
+    
+      #result {
+        text-align: center;
+        margin-top: 30px;
+        font-size: 2.3rem;
+      }
+    
       a.button-link {
-        position: sticky;
-        bottom: 10px;
+        display: block;
+        max-width: 900px;
+        margin: 40px auto 0;
+        padding: 34px;
+        border-radius: 28px;
+        font-size: 2.5rem;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+      }
+    
+      a.button-link:active {
+        transform: translateY(2px);
       }
     }
     
