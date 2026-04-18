@@ -183,35 +183,6 @@
   
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    //
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          action: "submit",
-          data: {
-            place: "p",
-            item: "i",
-            toWhere: "t",
-            amount: "a",
-            working: false
-          },
-          sendEmail: false
-        })
-      });
-  
-      console.log("status:", res.status);
-    
-      const text = await res.text();
-      console.log("raw response:", text);
-    
-      const data = JSON.parse(text);
-      console.log("parsed:", data);
-  
-    } catch (err) {
-      console.error("fetch error:", err);
-    }
-    //
   
     submitBtn.disabled = true;
     submitBtn.textContent = "送信中…";
