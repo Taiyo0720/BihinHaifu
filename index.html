@@ -189,7 +189,17 @@
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({...})
+        body: JSON.stringify({
+          action: "submit",
+          data: {
+            place: "p",
+            item: "i",
+            toWhere: "t",
+            amount: "a",
+            working: false
+          },
+          sendEmail: false
+        })
       });
   
       console.log("status:", res.status);
