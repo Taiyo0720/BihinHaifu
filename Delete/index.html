@@ -219,12 +219,12 @@
     const data = await res.json();
     console.log(data);
     if (data.status === "success") {
-      if (!data || data.length === 0) {
+      if (!data.table || data.table.length === 0) {
         result.textContent = "データがありません";
         return;
       }
 
-      data.forEach(row => {
+      data.table.forEach(row => {
         const tr = document.createElement("tr");
 
         // 業務中（G列）
