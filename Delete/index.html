@@ -210,7 +210,7 @@
   const createTable = async () => {
     console.log("実行されました");
     const res = await fetch(API_URL, {
-        method: "GET",
+        method: "POST",
         body: JSON.stringify({
           action: "getIdList"
         })
