@@ -236,7 +236,7 @@
       method: "POST",
       body: JSON.stringify({
         action: "getIdList"
-      });
+      })
     });
     const data = await res.json();
     if (data.status === "success") {
