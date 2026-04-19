@@ -237,6 +237,7 @@
       body: JSON.stringify({
         action: "getIdList"
       });
+    });
     const data = await res.json();
     if (data.status === "success") {
       if (!data.table || data.table.length === 0) return;
