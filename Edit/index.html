@@ -211,26 +211,27 @@
 
 <script>
 
-  document.addEventListener("DOMContentLoaded", async () => {
-    const tbody = document.querySelector("tbody");
-    const place = document.getElementById("place");
-    const item = document.getElementById("item");
-    const destination = document.getElementById("destination");
-    const qty = document.getElementById("qty");
-    const working = document.querySelector('input[name="working"]');
-    const emailCheck = document.querySelector('input[name="sendEmail"]');
-    const updateBtn = document.getElementById("updateBtn");
-    const result = document.getElementById("result");
-    const form = document.getElementById("myForm");
+  const tbody = document.querySelector("tbody");
+  const place = document.getElementById("place");
+  const item = document.getElementById("item");
+  const destination = document.getElementById("destination");
+  const qty = document.getElementById("qty");
+  const working = document.querySelector('input[name="working"]');
+  const emailCheck = document.querySelector('input[name="sendEmail"]');
+  const updateBtn = document.getElementById("updateBtn");
+  const result = document.getElementById("result");
+  const form = document.getElementById("myForm");
 
-    const API_URL = "https://script.google.com/macros/s/AKfycbz34i_gw5K6WmRpUW1DP-9ywf6ydsx4L-SqAwguQNvpTxvYrH4VMiaYpTA_A1aegmwDLg/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbz34i_gw5K6WmRpUW1DP-9ywf6ydsx4L-SqAwguQNvpTxvYrH4VMiaYpTA_A1aegmwDLg/exec";
 
-    working.addEventListener("change", () => {
-      emailCheck.disabled = !working.checked;
-      if (!working.checked) emailCheck.checked = false;
-    });
+  working.addEventListener("change", () => {
+    emailCheck.disabled = !working.checked;
+    if (!working.checked) emailCheck.checked = false;
+  });
 
-    let selectedRow = null;
+  let selectedRow = null;
+
+  const createTable = async () => {
     
     const res = await fetch(API_URL, {
       method: "POST",
@@ -241,20 +242,20 @@
     const data = await res.json();
     if (data.status === "success") {
       if (!data.table || data.table.length === 0) return;
-
+  
         data.table.forEach(row => {
           if (!row[0]) return;
-
+  
           const tr = document.createElement("tr");
-
+  
           // 業務中判定（G列）
           const isWorking =
             row[6] === true ||
             row[6] === "TRUE" ||
             row[6] === "true";
-
+  
           if (isWorking) tr.classList.add("working");
-
+  
           // 表示列：A, C, D, E, F
           const displayIndexes = [0, 2, 3, 4, 5];
           displayIndexes.forEach(i => {
@@ -262,19 +263,19 @@
             td.textContent = row[i] ?? "";
             tr.appendChild(td);
           });
-
+  
           tr.addEventListener("click", () => {
             document.querySelectorAll("tr.selected")
               .forEach(r => r.classList.remove("selected"));
-
+  
             tr.classList.add("selected");
             selectedRow = row;
-
+  
             place.value = row[2];
             item.value = row[3];
             destination.value = row[4];
             qty.value = row[5];
-
+  
             working.checked = isWorking;
             updateBtn.disabled = false;
           });
@@ -282,73 +283,78 @@
         });
       result.textContent = "";
     }
+  };
 
-    updateBtn.addEventListener("click", async () => {
-      if (!selectedRow) return;
+  createTable();
 
-      updateBtn.disabled = true;
-      result.textContent = "更新中…";
+  updateBtn.addEventListener("click", async () => {
+    if (!selectedRow) return;
 
-      const editData = async (sendEmail = false) => {
-        const res = await fetch(API_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "updateDataById",
-            id: selectedRow[0],
-            newValues: {
-              place: place.value,
-              item: item.value,
-              toWhere: destination.value,
-              amount: qty.value,
-              working: working.checked
-            },
-            sendEmail: sendEmail
-          })
-        });
-        const data = await res.json();
-        if (data.status === "success") {
-          result.textContent = data.message;
-          form.reset();
-        } else {
-          result.textContent = data.message;
-          updateBtn.disabled = false;
-        }
-      }
-      
-      // ===== メール確認が必要な場合 =====
-      if (emailCheck.checked) {
-        const res = await fetch(API_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "getManagerEmail",
-            place: destination.value
-          })
-        });
-        const data = await res.json();
-        if (data.status === "success") {
-          let ok;
+    updateBtn.disabled = true;
+    result.textContent = "更新中…";
 
-            if (data.email) {
-              ok = confirm(`編集を確定し、目的地担当者 ${data.email} に待機要請メールを送信します。よろしいですか？`);
-            } else {
-              ok = confirm("目的地担当者が見つからないため、メールを送信せずに編集を確定します。よろしいですか？");
-            }
-
-            if (ok) {
-              await editData(sendEmail = true);
-            } else {
-              updateBtn.disabled = false;
-            }
-        } else {
-          result.textContent = data;
-          updateBtn.disabled = false;
-        }
+    const editData = async (sendEmail = false) => {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "updateDataById",
+          id: selectedRow[0],
+          newValues: {
+            place: place.value,
+            item: item.value,
+            toWhere: destination.value,
+            amount: qty.value,
+            working: working.checked
+          },
+          sendEmail: sendEmail
+        })
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        result.textContent = data.message;
+        form.reset();
+        tbody.innerHTML = "";
+        createTable();
         
       } else {
-        // メール送信なし
-        await editData();
+        result.textContent = data.message;
+        updateBtn.disabled = false;
       }
-    });
+    }
+    
+    // ===== メール確認が必要な場合 =====
+    if (emailCheck.checked) {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "getManagerEmail",
+          place: destination.value
+        })
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        let ok;
+
+          if (data.email) {
+            ok = confirm(`編集を確定し、目的地担当者 ${data.email} に待機要請メールを送信します。よろしいですか？`);
+          } else {
+            ok = confirm("目的地担当者が見つからないため、メールを送信せずに編集を確定します。よろしいですか？");
+          }
+
+          if (ok) {
+            await editData(sendEmail = true);
+          } else {
+            updateBtn.disabled = false;
+          }
+      } else {
+        result.textContent = data;
+        updateBtn.disabled = false;
+      }
+      
+    } else {
+      // メール送信なし
+      await editData();
+    }
   });
 </script>
 
