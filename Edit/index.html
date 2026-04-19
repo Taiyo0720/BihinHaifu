@@ -283,7 +283,7 @@
       result.textContent = "";
     }
 
-    updateBtn.addEventListener("click", () => {
+    updateBtn.addEventListener("click", async () => {
       if (!selectedRow) return;
 
       updateBtn.disabled = true;
@@ -335,7 +335,7 @@
             }
 
             if (ok) {
-              editData(sendEmail = true);
+              await editData(sendEmail = true);
             } else {
               updateBtn.disabled = false;
             }
@@ -346,7 +346,7 @@
         
       } else {
         // メール送信なし
-        editData();
+        await editData();
       }
     });
   });
