@@ -292,7 +292,7 @@
       const editData = async (sendEmail = false) => {
         const res = await fetch(API_URL, {
           method: "POST",
-          body: JSON.stringify{
+          body: JSON.stringify({
             action: "editDataById",
             id: selectedRow[0],
             newValues: {
@@ -303,7 +303,7 @@
               working: working.checked
             },
             sendEmail: sendEmail
-          }
+          })
         });
         const data = await res.json();
         if (data.status === "success") {
