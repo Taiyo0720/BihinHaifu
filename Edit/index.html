@@ -357,6 +357,7 @@
     });
     const data = await res.json();
     if (data.status === "success") {
+      tbody.innerHTML = "";
       if (!data.table || data.table.length === 0) return;
   
         data.table.forEach(row => {
@@ -403,10 +404,7 @@
   };
 
   createTable()
-  setInterval(() => {
-    tbody.innerHTML = "";
-    createTable();
-  }, 30000);
+  setInterval(createTable, 30000);
 
   updateBtn.addEventListener("click", async () => {
     if (!selectedRow) return;
