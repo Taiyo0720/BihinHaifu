@@ -330,7 +330,7 @@
     
   }
 
-  createTable();
+  setInterval(createTable(), 30000);
 
   deleteBtn.addEventListener("click", async () => {
     if (!selectedRow) return;
