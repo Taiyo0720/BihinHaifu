@@ -289,8 +289,8 @@
     <thead>
       <tr>
         <th>ID</th>
-        <th>場所</th>
-        <th>物</th>
+        <th>出発地点</th>
+        <th>備品名</th>
         <th>目的地</th>
         <th>数</th>
         <th>備考</th>
@@ -301,11 +301,11 @@
 </div>
 
 <form id="myForm">
-  <input id="place" placeholder="場所">
-  <input id="item" placeholder="物">
-  <input id="destination" placeholder="目的地">
-  <input id="qty" type="number" placeholder="数">
-  <input id="note" placeholder="備考">
+  <input name="place" placeholder="出発地点">
+  <input name="item" placeholder="備品名">
+  <input name="toWhere" placeholder="目的地">
+  <input name="amount" type="number" placeholder="数">
+  <input name="note" placeholder="備考">
   <label class="checkbox">
     <input type="checkbox" name="working">
     <span>業務中</span>
@@ -388,11 +388,11 @@
             tr.classList.add("selected");
             selectedRow = row;
   
-            place.value = row[2];
-            item.value = row[3];
-            destination.value = row[4];
-            qty.value = row[5];
-            note.value = row[7];
+            form.place.value = row[2];
+            form.item.value = row[3];
+            form.toWhere.value = row[4];
+            form.amount.value = row[5];
+            form.note.value = row[7];
   
             working.checked = isWorking;
             updateBtn.disabled = false;
@@ -421,11 +421,11 @@
           action: "updateDataById",
           id: selectedRow[0],
           newValues: {
-            place: place.value,
-            item: item.value,
-            toWhere: destination.value,
-            amount: qty.value,
-            note: note.value,
+            place: form.place.value,
+            item: form.item.value,
+            toWhere: form.toWhere.value,
+            amount: form.amount.value,
+            note: form.note.value,
             working: working.checked
           },
           sendEmail: sendEmail
@@ -450,7 +450,7 @@
         method: "POST",
         body: JSON.stringify({
           action: "getManagerEmail",
-          place: destination.value
+          place: form.toWhere.value
         })
       });
       const data = await res.json();
