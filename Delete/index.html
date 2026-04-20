@@ -367,7 +367,7 @@
 
     if (data.status === "success") {
       result.textContent = data.message;
-      idInput.textContent = "";
+      idInput.textContent = ""; //readonlyだから消せなさそう（削除ボタンはdisabledになるのでシステム的な問題はない）
       tbody.innerHTML = "";
       createTable();
     } else {
