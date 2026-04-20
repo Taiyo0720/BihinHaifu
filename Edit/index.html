@@ -402,7 +402,11 @@
     }
   };
 
-  setInterval(createTable, 30000);
+  createTable()
+  setInterval(() => {
+    tbody.innerHTML = "";
+    createTable();
+  }, 30000);
 
   updateBtn.addEventListener("click", async () => {
     if (!selectedRow) return;
