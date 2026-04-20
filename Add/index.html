@@ -223,6 +223,7 @@
     <input name="item" placeholder="物" required>
     <input name="toWhere" placeholder="目的地" required>
     <input name="amount" type="number" placeholder="数" min="1" required>
+    <input name="note" placeholder="備考（任意）">
 
     <label class="checkbox">
       <input type="checkbox" name="working" id="working">
@@ -273,7 +274,8 @@
             item: form.item.value,
             toWhere: form.toWhere.value,
             amount: form.amount.value,
-            working: form.working.checked
+            working: form.working.checked,
+            note: form.note.value
           },
           sendEmail: sendEmail
         })
