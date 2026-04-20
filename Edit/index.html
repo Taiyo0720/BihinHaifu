@@ -293,6 +293,7 @@
         <th>物</th>
         <th>目的地</th>
         <th>数</th>
+        <th>備考</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -304,6 +305,7 @@
   <input id="item" placeholder="物">
   <input id="destination" placeholder="目的地">
   <input id="qty" type="number" placeholder="数">
+  <input id="note" placeholder="備考">
   <label class="checkbox">
     <input type="checkbox" name="working">
     <span>業務中</span>
@@ -329,6 +331,7 @@
   const item = document.getElementById("item");
   const destination = document.getElementById("destination");
   const qty = document.getElementById("qty");
+  const note = document.getElementById("note");
   const working = document.querySelector('input[name="working"]');
   const emailCheck = document.querySelector('input[name="sendEmail"]');
   const updateBtn = document.getElementById("updateBtn");
@@ -370,7 +373,7 @@
           if (isWorking) tr.classList.add("working");
   
           // 表示列：A, C, D, E, F
-          const displayIndexes = [0, 2, 3, 4, 5];
+          const displayIndexes = [0, 2, 3, 4, 5, 7];
           displayIndexes.forEach(i => {
             const td = document.createElement("td");
             td.textContent = row[i] ?? "";
@@ -388,6 +391,7 @@
             item.value = row[3];
             destination.value = row[4];
             qty.value = row[5];
+            note.value = row[7];
   
             working.checked = isWorking;
             updateBtn.disabled = false;
@@ -417,6 +421,7 @@
             item: item.value,
             toWhere: destination.value,
             amount: qty.value,
+            note: note.value,
             working: working.checked
           },
           sendEmail: sendEmail
@@ -460,7 +465,7 @@
             updateBtn.disabled = false;
           }
       } else {
-        result.textContent = data;
+        result.textContent = data.message;
         updateBtn.disabled = false;
       }
       
