@@ -396,6 +396,8 @@
   
             working.checked = isWorking;
             updateBtn.disabled = false;
+            emailCheck.disabled = !working.checked;
+            if (!working.checked) emailCheck.checked = false;
           });
           tbody.appendChild(tr);
         });
