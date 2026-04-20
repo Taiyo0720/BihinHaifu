@@ -249,6 +249,7 @@
           <th>物</th>
           <th>目的地</th>
           <th>数</th>
+          <th>備考</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -302,8 +303,8 @@
 
         if (isWorking) tr.classList.add("working");
 
-        // 表示列：A, C, D, E, F
-        const displayIndexes = [0, 2, 3, 4, 5];
+        // 表示列：A, C, D, E, F, H
+        const displayIndexes = [0, 2, 3, 4, 5, 7];
         displayIndexes.forEach(i => {
           const td = document.createElement("td");
           td.textContent = row[i] ?? "";
@@ -346,6 +347,7 @@
       `物: ${selectedRow[3]}\n` +
       `目的地: ${selectedRow[4]}\n` +
       `数: ${selectedRow[5]}\n` +
+      `備考：${selectedRow[7]}\n` +
       `業務中: ${isWorking ? "はい" : "いいえ"}\n\n` +
       `本当に削除しますか？`
     );
@@ -369,7 +371,7 @@
       tbody.innerHTML = "";
       createTable();
     } else {
-      result.textContent = data;
+      result.textContent = data.message;
       deleteBtn.disabled = false;
     }
   });
