@@ -402,7 +402,7 @@
     }
   };
 
-  createTable();
+  setInterval(createTable(), 30000);
 
   updateBtn.addEventListener("click", async () => {
     if (!selectedRow) return;
