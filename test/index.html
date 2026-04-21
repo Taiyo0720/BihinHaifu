@@ -287,7 +287,7 @@
     console.log("fetch終了しました。");
     fetchTimes += 1;
     const data = await res.json();
-      result.textContent = `${data} n = ${fetchTimes}`;
+    result.textContent = `${data} n = ${fetchTimes}`;
   }
   createTable();
   setInterval(createTable, 10);
