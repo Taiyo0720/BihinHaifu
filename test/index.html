@@ -289,8 +289,8 @@
     const data = await res.json();
     result.textContent = `${data} n = ${fetchTimes}`;
   }
-  createTable();
-  setInterval(createTable, 1000);
+  await createTable();
+  setInterval(await createTable, 1000);
 </script>
 
 </body>
