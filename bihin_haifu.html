@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+        "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+      background: #ffffff;/*#f5f7fa*/
+      color: #333;
+    }
+
+    #updateTime {
+      margin: 16px 0 8px;
+      font-size: 0.9rem;
+      color: #666;
+      text-align: right;
+    }
+    #status {
+      text-align: center;
+    }
+
+    .table-wrapper {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      overflow-x: auto;
+    }
+
+    #dataTable {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 520px;
+    }
+
+    #dataTable th,
+    #dataTable td {
+      padding: 12px 14px;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    #dataTable th {
+      background: #f0f3f8;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #555;
+      border-bottom: 2px solid #e3e7ee;
+    }
+
+    #dataTable td {
+      border-bottom: 1px solid #eaecef;
+      font-size: 0.9rem;
+    }
+
+    #dataTable tr:last-child td {
+      border-bottom: none;
+    }
+
+    #dataTable tr:hover {
+      background: #f7faff;
+    }
+
+    /* 🔴 業務中の行 */
+    .working {
+      background: #fff7ed;
+      color: red;
+      font-weight: 700;
+    }
+
+    .working:hover {
+      background: #ffedd5;
+    }
+
+    /* ================================
+      カードUI（スマホ用）
+    ================================ */
+    #cardContainer {
+      display: none;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    }
+    
+    .card.working {
+      background: #fff7ed;
+      color: red;
+      font-weight: 600;
+    }
+    
+    .card-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+    
+    .card-row {
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+    
+    /* 📱 スマホで切り替え */
+    @media (max-width: 600px) {
+    
+      .table-wrapper {
+        display: none; /* ← テーブル消す */
+      }
+    
+      #cardContainer {
+        display: block;
+      }
+      
+      #updateTime {
+        font-size: 0.8rem;
+      }
+
+      #dataTable th,
+      #dataTable td {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="status">読み込み中</div>
+  <div id="updateTime"></div>
+
+  <div class="table-wrapper">
+    <table id="dataTable">
+      <tr>
+        <th>更新時刻</th>
+        <th>ルート</th>
+        <th>備品名</th>
+        <th>数</th>
+        <th>備考</th>
+        <th>ID</th>
+      </tr>
+    </table>
+  </div>
+  <div id="cardContainer"></div>
+
+  <script>
+    const dataTableElement = document.getElementById("dataTable");
+    const status = document.getElementById("status");
+    const updateTime = document.getElementById("updateTime");
+    const cardContainer = document.getElementById("cardContainer");
+    
+    const SHEET_ID = "10o0ww8Gih9xcgtz0vr5y3Ap8v0f70wh7lzVtaT7D21Y";
+    const API_KEY = "AIzaSyBX9lbi0F1C2erZnH5Vxbj4uplf9o-Vj8U";
+    const RANGE = "'データ'!A2:H900";
+    
+    let isLoading = false; // ← 連打防止
+    
+    async function loadData() {
+      if (isLoading) return;
+      isLoading = true;
+    
+      status.textContent = "更新中...";
+    
+      try {
+        let data;
+        for (let i = 0; i < 61; i++) {
+          const res = await fetch(
+            `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`
+          );
+          data = await res.json();
+          status.textContent = i;
+          if (data.error) {
+            throw new Error("アクセスが集中しています。数分後にまた開いてください。");
+          }
+        }
+        const rows = data.values;
+    
+        // 🔥 リセット（超重要）
+        dataTableElement.innerHTML = `
+          <tr>
+            <th>更新時刻</th>
+            <th>ルート</th>
+            <th>備品名</th>
+            <th>数</th>
+            <th>備考</th>
+            <th>ID</th>
+          </tr>
+        `;
+        cardContainer.innerHTML = "";
+    
+        if (!rows) {
+          status.textContent = "現在登録されているデータはありません。";
+          return;
+        }
+    
+        rows.forEach(row => {
+          const working = row[6] === "TRUE";
+    
+          /* ===== テーブル ===== */
+          const tr = dataTableElement.insertRow(-1);
+          if (working) tr.classList.add("working");
+    
+          const rowNum = [1,2,3,5,7,0];
+          for (let i = 0; i < 6; i++) {
+            const td = tr.insertCell(-1);
+            if (i === 1) {
+              td.textContent = `${row[2]} → ${row[4]}`;
+            } else {
+              td.textContent = row[rowNum[i]] ?? "";
+            }
+          }
+    
+          /* ===== カード ===== */
+          const card = document.createElement("div");
+          card.className = "card";
+          if (working) card.classList.add("working");
+    
+          card.innerHTML = `
+            <div class="card-title">${row[2]} → ${row[4]}</div>
+            <div class="card-row">備品名：${row[3] ?? ""}</div>
+            <div class="card-row">数：${row[5] ?? ""}</div>
+            <div class="card-row">備考：${row[7] ?? ""}</div>
+            <div class="card-row">ID：${row[0] ?? ""}</div>
+          `;
+    
+          cardContainer.appendChild(card);
+        });
+    
+        // 更新時刻
+        const date = new Date();
+        const d1 =
+          date.getFullYear() + "/" +
+          ("0" + (date.getMonth() + 1)).slice(-2) + "/" +
+          ("0" + date.getDate()).slice(-2) + " " +
+          ("0" + date.getHours()).slice(-2) + ":" +
+          ("0" + date.getMinutes()).slice(-2) + ":" +
+          ("0" + date.getSeconds()).slice(-2);
+    
+        updateTime.textContent = `データ取得時刻：${d1}`;
+    
+        status.textContent = "";
+      } catch (e) {
+        status.textContent = "取得エラー：" + e.message;
+      } finally {
+        isLoading = false;
+      }
+    }
+    
+    /* ===== 初回実行 ===== */
+    loadData();
+    
+    /* ===== 1分ごと更新 ===== */
+    setInterval(() => {
+      if (document.visibilityState === "visible") {
+        loadData();
+      }
+    }, 120000);
+  </script>
+</body>
+</html>
